@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <meta charset="utf-8">
+
+    </head>
+    <body onload="start()"> <!------初始化-->
+      <div id = "firstview">
+        <div id = "text">
+          <p class = "massage">走棋时棋子跳过相邻的棋子到空位上，并把跳过的棋子吃掉。棋子可以沿棋盘的格线横跳、纵跳，但不能斜跳</p>
+          <p class = "massage">点击青蛙跳过相邻的青蛙 即可吃掉跳过的青蛙 剩下的青蛙数越少越好，当只剩下一只青蛙 且其再正中位置时，为最终胜利</p>
+          <button id= "entergame" class = "button">进入游戏</button>
+      </div>
+      </div>
+      <div id = "body">
+          <div class = "Map">
+          <canvas id = "mycanvas" height = "420px" width = "420px"></canvas>
+          </div>
+          <div id = "init" >
+            <button id = "rule" class = "button" >游戏规则</button>
+              <button id = "start" class = "button">开始游戏</button>
+          </div>
+
+          <div id = "sel" class = "sel">
+            <button id = "prior" class = "button">上一关</button>
+            <button id = "next" class = "button">下一关</button>
+          <button id = "restart" class = "button">重新开始</button></div>
+      </div>
+    <div id = "rulebox" class = "box1"><p id = "ruleclose" class = "close">X</p>
+    <p>走棋时棋子跳过相邻的棋子到空位上，并把跳过的棋子吃掉。棋子可以沿棋盘的格线横跳、纵跳，但不能斜跳</p>
+    <p>点击青蛙跳过相邻的青蛙 即可吃掉跳过的青蛙 剩下的青蛙数越少越好，当只剩下一只青蛙 且其再正中位置时，为最终胜利</p>
+    </div>
+    <div id = "gameover" class ="box"><p id = "overclose" class = "close">X</p>
+    <p id = "result"></p>
+    </div> 
+      
+
+    <div id = "fade" class = "shadow"></div>
+       <script>
+        function GameLevels(){
+        this.levels = [
+   [[-1, -1, 0, 0, 0, -1, -1],
+     [-1, -1, 0, 1, 0, -1, -1],
+     [0, 0, 1, 1, 1, 0, 0],
+     [0, 0, 0, 1, 0, 0, 0],
+     [0, 0, 0, 1, 0, 0, 0],
+     [-1, -1, 0, 0, 0, -1, -1],
+     [-1, -1, 0, 0, 0, -1, -1]],
+
+     [[-1, -1, 0, 0, 0, -1, -1],
+        [-1, -1, 0, 1, 0, -1, -1],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [-1, -1, 0, 1, 0, -1, -1],
+        [-1, -1, 0, 0, 0, -1, -1]],
+        
+        [[-1, -1, 0, 1, 0, -1, -1],
+        [-1, -1, 0, 1, 0, -1, -1],
+        [0, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1]],
+
+        [[-1, -1, 0, 1, 0, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [0, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1]],
+
+        [[-1, -1, 0, 0, 0, -1, -1],
+        [-1, -1, 0, 0, 0, -1, -1],
+        [0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 0, 0],
+        [0, 1, 1, 1, 1, 1, 0],
+        [-1, -1, 0, 0, 0, -1, -1],
+        [-1, -1, 0, 0, 0, -1, -1]],
+
+        [[-1, -1, 0, 0, 0, -1, -1],
+        [-1, -1, 0, 1, 0, -1, -1],
+        [0, 0, 1, 1, 1, 0, 0],
+        [0, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 1],
+        [-1, -1, 0, 0, 0, -1, -1],
+        [-1, -1, 0, 0, 0, -1, -1]],
+
+        [[-1, -1, 0, 1, 0, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [0, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 1],
+        [0, 1, 1, 1, 1, 1, 0],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [-1, -1, 0, 0, 0, -1, -1]],
+
+        [[-1, -1, 1, 1, 1, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [1, 1, 0, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1]],
+
+        [[-1, -1, 1, 1, 1, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 0, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1],
+        [-1, -1, 1, 1, 1, -1, -1],
+        [-1, -1, 1, 1, 1, -1, -1]]
+    ];
+
+
+        }
+    var FV = document.getElementById("firstview");
+    var E = document.getElementById("entergame");
+    var M = document.getElementById("body");
+    var S = document.getElementById("start");//开始按钮
+    var B = document.getElementById("next");//下一关按钮
+    var level = 0;//关卡
+    var G = new GameLevels();//得到关卡函数
+    var map = G.levels[level];
+    var clicked = 0;//是否有点击过的位置 0 == 无，2 == 青蛙, 1== 荷叶
+    var R = document.getElementById("rule");
+    var RB = document.getElementById("rulebox");
+    var F  = document.getElementById("fade");
+    var P  = document.getElementById("prior");
+    var Go = document.getElementById("gameover");
+    var I = document.getElementById("init");
+    var sel = document.getElementById("sel");
+    var RC = document.getElementById("ruleclose");
+    var OC = document.getElementById("overclose");
+    var GR = document.getElementById("restart");
+    var result = document.getElementById("result");
+    //var MX;//记录鼠标点击位置
+    //var MY;
+    var x1 = 0;//td在数组中的i
+    var x2 = 0;
+    var y1 = 0;//td在数组中的j
+    var y2 = 0;
+    var x = -1;
+    var y = -1;
+    var bg,bg1,normal,active;//图片
+    var canvas = document.getElementById("mycanvas");
+    var context = canvas.getContext('2d');
+    var n;//结束的话剩下几只青蛙
+//预加载所有图片
+
+function imgPreload(srcs, callback) {
+	var count = 0;
+	var	imgNum = 0;
+	var	images = {};
+
+	for (src in srcs) {
+		imgNum++;
+  }
+  
+	for (src in srcs) {
+		images[src] = new Image();
+		images[src].onload = function() {
+			//判断是否所有的图片都预加载完成
+			if (++count >= imgNum) {
+				callback(images);
+			}
+    }
+    //把srcs中的图片信息导入images数组  
+    images[src].src = srcs[src];
+    //alert(4);
+	}
+}
+var srcs = {
+   "bg":"bg.jpg",
+  "bg1":"bg1.jpg",
+  "normal":"normal.gif",
+  "active":"active.gif"
+};
+imgPreload(srcs, function(images)
+{
+  bg = images.bg;
+  bg1 = images.bg1;
+  normal = images.normal;
+  active = images.active;
+  //context.drawImage(bg,0,0, 50,50);
+  S.addEventListener("click",drawchessboard);
+  B.addEventListener("click",changeMap2); 
+  P.addEventListener("click",changeMap1);
+  GR.addEventListener("click", restart);
+  R.addEventListener("click",showRule);
+  RC.addEventListener("click",ruleClose);
+  OC.addEventListener("click",resultclose)
+}
+); 
+
+    //开始界面
+     function start()
+    {
+       M.style.display = "none";
+       E.addEventListener("click",startgame);
+    }
+    function startgame()
+    {
+       M.style.display = "block";
+      FV.style.display = "none";
+      init();
+    }
+
+
+  //初始化游戏
+  function init()
+    {
+     
+     //填充
+     for(var i = 0; i < 7; i++)
+       for(var j = 0 ;j < 7; j++) 
+       {
+         context.fillStyle = "#BBFFEE";
+          context.fillRect(j * 60,i * 60 , 60, 60);
+       }
+    //画边框
+    for(var i = 0; i < 7; i++)
+      for(var j = 0 ;j < 7; j++)
+      {
+        context.strokeStyle = "#000";
+        context.strokeRect(j *60, i * 60, 60, 60);  
+     }
+
+  }
+      
+ /* canvas.onmousedown = function(event)
+  {
+            var rect = canvas.getBoundingClientRect();
+            y = parseInt((event.clientX - rect.left) / 60);//点击了哪一个位置
+            x = parseInt((event.clientY - rect.top)/60);
+            MX = event.clientX;
+            MY = ecent.clientY;
+            Game();
+  }  */
+
+  canvas.addEventListener("click", function(event) {
+           var rect = canvas.getBoundingClientRect();
+            y = parseInt((event.clientX - rect.left) / 60);//点击了哪一个位置
+            x = parseInt((event.clientY - rect.top)/60);
+            Game();  
+        })   
+
+function drawchessboard()
+{
+ //填充
+  for(var i = 0; i < 7; i++)
+  for(var j = 0 ;j < 7; j++)
+  {
+    if(map[i][j] == -1)
+    {
+      context.fillStyle = "#BBFFEE";
+      context.clearRect(j * 60,i * 60,60,60);
+    context.fillRect(j * 60,i * 60 , 60, 60);
+    }
+    else if(map[i][j] == 0)
+    {
+      context.clearRect(j * 60,i * 60,60,60);
+      context.drawImage(bg,j * 60,i * 60,60,60);
+    }
+    else{
+      context.clearRect(j * 60,i * 60,60,60);
+      context.drawImage(bg,j * 60,i * 60,60,60);
+      context.drawImage(normal,j * 60 + 9,i * 60,45,45);
+    }
+ }
+
+ drawborder();
+    S.style.display = "none";
+      sel.style.display = "block";
+     /* canvas.onmouseover = function (e) {
+            var rect = canvas.getBoundingClientRect();
+            y = parseInt((e.clientX - rect.left) / 50);//哪一个位置
+            x = parseInt((e.clientY - rect.top)/50);
+            //设置填充色为白色且alpha值(透明度)为0.2 
+          context.fillStyle = "rgba(0,0,0,0.5)";
+            context.fillRect(y * 50,x*50,50,50);
+        }
+       */
+      
+        
+}
+
+function drawborder()
+{
+  //画边框
+ for(var i = 0; i < 7; i++)
+  for(var j = 0 ;j < 7; j++)
+  {
+    context.strokeStyle = "#000";
+    context.strokeRect(j *60, i * 60, 60, 60);  
+ }
+}
+
+
+function Game()
+{
+  if(map[x][y] == 0)
+  {
+    Judge1();
+  }
+  else if(map[x][y] == 1)
+  {
+    Judge2();
+  }
+}
+
+
+
+
+   function Judge1()
+   {
+     
+   
+    if(clicked == 0)//点击荷叶
+        { 
+          
+           x1 = x;
+           y1 = y;
+       // var td = event.srcElement; // 通过event.srcElement 获取激活事件的对象 td
+        //x1 = td.parentElement.rowIndex;
+        //y1 = td.cellIndex;
+        clicked = 1;
+        context.clearRect(y1 * 60, x1 * 60, 60,60);
+        context.drawImage(bg1, y1 * 60, x1 * 60,60,60);//改变背景
+        drawborder();
+          
+        
+        }
+        else if(clicked == 1)//第二次也点击荷叶
+        {
+        
+          if((x1 == x) && (y1 == y))//重复点击同一个荷叶
+          {
+            
+            context.clearRect(y * 60, x * 60, 60,60);
+            context.drawImage(bg, y * 60, x * 60,60,60);
+            drawborder();
+            clicked = 0;
+          }
+          else{
+         clicked = 1;
+         context.clearRect(y1 * 60, x1 * 60, 60,60);
+         context.drawImage(bg, y1 * 60, x1 * 60,60,60);//取消之前点击的
+         x1 = x;
+         y1 = y;
+         context.clearRect(y1 * 60, x1 * 60, 60,60);
+         context.drawImage(bg1, y1 * 60, x1 * 60,60,60);
+         drawborder();
+        // alert(x1 +"+"+ y1);
+          }
+        
+        }
+        else if(clicked == 2)//之前点击的是青蛙
+        {  x1 = x;
+           y1 = y;
+         
+          if( (y1==y2)&&(Math.abs(x1-x2) == 2))//符合跳棋规则 更新地图
+          {
+            map[x1][y1] = 1;
+            map[x2][y2] = 0;
+            if(x1 > x2)
+            map[x1-1][y1] = 0;
+            else
+            map[x1+1][y1] = 0;
+            context.clearRect(0,0,420,420);
+            updateMap();
+            drawborder();
+            isend();
+           
+          }
+          else if((x1==x2)&&(Math.abs(y1-y2) == 2))
+          {
+            
+            map[x1][y1] = 1;
+            map[x2][y2] = 0;
+            if(y1 > y2)
+            map[x1][y1 - 1] = 0;
+            else
+            map[x1][y1 + 1] = 0;
+            updateMap();
+            drawborder();
+            isend();
+          }
+
+          else //不符合规则 把之前点击的青蛙取消了
+          {
+           context.clearRect(y2 * 60, x2 * 60, 60,60);
+           context.drawImage(bg, y2 * 60, x2 * 60,60,60);
+           context.drawImage(normal,y2 * 60 + 9,x2 * 60,45,45);
+           x1 = x;
+           y1 = y;
+           context.clearRect(y1 * 60, x1 * 60, 60,60);
+           context.drawImage(bg1, y1 * 60, x1 * 60,60,60);
+           drawborder();
+           clicked = 1;
+      
+          }
+        } 
+      }
+   
+    
+    
+    
+    
+   function Judge2()
+   {
+    
+        if(clicked == 0)//点击青蛙
+        {
+         
+          x2 = x;
+          y2 = y;
+        clicked = 2;
+        context.clearRect(y2 * 60, x2 * 60, 60,60);
+        context.drawImage(bg1, y2 * 60, x2 * 60,60,60);
+        context.drawImage(active,y2 * 60 + 9,x2 * 60,45,45);  
+        drawborder();
+        }
+        else if(clicked == 2)//第二次点击青蛙 取消第一只点击的 
+        {
+          if((x2 == x)&&(y2 == y)) //两次点击的是同一只青蛙
+          {
+            clicked = 0;
+              context.clearRect(y2 * 60, x2 * 60, 60,60);
+            context.drawImage(bg, y2 * 60, x2 * 60,60,60);
+            context.drawImage(normal,y2 * 60 + 9,x2 * 60,45,45);
+            drawborder();
+            
+           }
+          else{
+              context.clearRect(y2 * 60, x2 * 60, 60,60);
+              context.drawImage(bg, y2 * 60, x2 * 60,60,60);//取消之前点击的
+              context.drawImage(normal,y2 * 60 + 9,x2 * 60,45,45);
+              x2 = x;
+              y2 = y;
+              context.clearRect(y2 * 60, x2 * 60, 60,60);
+              context.drawImage(bg1, y2 * 60, x2 * 60,60,60);
+              context.drawImage(active,y2 * 60 + 9,x2 * 60,45,45);
+              drawborder();
+              clicked = 2;
+          }
+         // alert(x2 +"+"+ y2);
+         
+        }
+        else if(clicked == 1)
+        {
+          
+          context.clearRect(y1 * 60, x1 * 60, 60,60);
+         context.drawImage(bg, y1 * 60, x1 * 60,60,60);
+         x2 = x;
+         y2 = y;
+         context.clearRect(y2 * 60, x2 * 60, 60,60);
+         context.drawImage(bg1, y2 * 60, x2 * 60,60,60);
+         context.drawImage(active,y2 * 60 + 9,x2 * 60,45,45);
+         drawborder();
+         clicked = 2;
+        }
+
+     // return false;
+     
+      }
+    
+   function changeMap2()
+   {
+        clicked = 0;//是否有点击过的位置 0 == 无，2 == 青蛙, 1== 荷叶
+        x1 = 0;//td在数组中的i
+        x2 = 0;
+        y1 = 0;//td在数组中的j
+        y2 = 0;
+        x = -1;
+        y = -1;
+        if(level != 8 )
+          level++;
+         var G1 = new GameLevels();
+          map = G1.levels[level];
+        context.clearRect(0,0,420,420);
+        drawchessboard();
+   }
+  
+   function changeMap1()
+   {
+         clicked = 0;//是否有点击过的位置 0 == 无，2 == 青蛙, 1== 荷叶
+         x1 = 0;//td在数组中的i
+         x2 = 0;
+         y1 = 0;//td在数组中的j
+         y2 = 0;
+         x = -1;
+         y = -1;
+        if(level != 0 )
+          level--;
+       var G1 = new GameLevels();
+          map = G1.levels[level];
+        context.clearRect(0,0,420,420);
+        drawchessboard();
+   }
+      
+
+   function restart()
+{
+  clicked = 0;//是否有点击过的位置 0 == 无，2 == 青蛙, 1== 荷叶
+  x1 = 0;//td在数组中的i
+  x2 = 0;
+  y1 = 0;//td在数组中的j
+  y2 = 0;
+  x = -1;
+  y = -1;
+  var G1 = new GameLevels();
+  map = G1.levels[level];
+  context.clearRect(0,0,420,420);
+  drawchessboard();
+}
+
+  function updateMap()
+  {
+    for(var i = 0; i < 7; i++)
+  for(var j = 0 ;j < 7; j++)
+  {
+    if(map[i][j] == -1)
+    {
+      /////////////////////////////////////////////////
+      context.fillStyle = "BBFFEE";
+      context.clearRect(j * 60,i * 60,60,60);
+    context.fillRect(j * 60,i * 60 , 60, 60);
+    }
+    else if(map[i][j] == 0)
+    {
+      context.clearRect(j * 60,i * 60,60,60);
+      context.drawImage(bg,j * 60,i * 60,60,60);
+    }
+    else{
+      context.clearRect(j * 60,i * 60,60,60);
+      context.drawImage(bg,j * 60,i * 60,60,60);
+      context.drawImage(normal,j * 60 + 9,i * 60,45,45);
+    }
+    x = -1;
+    y = -1;
+    clicked = 0;
+ }
+//画边框
+ for(var i = 0; i < 7; i++)
+  for(var j = 0 ;j < 7; j++)
+  {
+    context.strokeStyle = "#000";
+    context.strokeRect(j *60, i * 60, 60, 60);
+    
+ }
+
+  }
+
+  function showRule()
+   {
+      RB.style.display = "block";
+     // F.style.display = "block";
+   }
+
+   function ruleClose()
+   {
+      RB.style.display = "none";
+     // F.style.display = "none";
+   }
+
+   function resultclose()
+   {
+      Go.style.display = "none";
+      F.style.display = "none";
+   }
+  function isend()
+  {
+
+   
+    n = 0;
+    
+    for(var i = 0; i < 7; i++)
+     for(var j = 0; j < 7; j++)
+  {
+      if(map[i][j] == 1)
+      {
+        if(i == 0)
+        {
+        if((map[i+1][j] == 1)||(map[i][j+1] == 1)||(map[i][j-1] == 1))
+        {
+            n++;
+            break;
+            
+        }
+      }
+      else if(i == 6)
+      {
+        if(((map[i][j+1] == 1)||(map[i][j-1] == 1) || map[i - 1][j] == 1))
+        {
+            n++;
+            break;
+            
+        }
+      }
+      else if(j == 0)
+      {
+        if((map[i+1][j] == 1)||(map[i][j+1] == 1)|| (map[i - 1][j] == 1))
+        {
+            n++;
+            break;
+            
+        }
+      }
+      else if(j == 6)
+      {
+        if((map[i+1][j] == 1)||(map[i][j-1] == 1)|| (map[i - 1][j] == 1))
+        {
+            n++;
+            break;
+            
+        }
+      }
+      else if((map[i+1][j] == 1)||(map[i][j-1] == 1)|| (map[i - 1][j] == 1) || map[i][j + 1] == 1)
+      {
+        n++;
+            break;
+      }
+      }
+  }
+ 
+  if(n == 0)
+  {
+    //游戏结束 统计青蛙数量
+    for(var i = 0; i < 7; i++)
+     for(var j = 0; j < 7; j++)
+  {
+      if(map[i][j] == 1)
+      {
+         n++;     
+      }
+  }
+
+    setTimeout(function(){
+      showgrade();} ,500)//延时！！！！
+}
+    
+    
+    function showgrade()
+    {
+      if(n == 5)
+    {
+      F.style.display = "block";
+      Go.style.display = "block";
+      result.innerHTML = "剩余青蛙数为5，您的等级为：颇好";
+      
+    }
+    else if(n == 4)
+    {
+      F.style.display = "block";
+      Go.style.display = "block";
+      result.innerHTML = "剩余青蛙数为4，您的等级为：很好";
+      
+    }
+    else if(n == 3)
+    {
+      fade.style.display = "block";
+      Go.style.display = "block";
+      result.innerHTML = "剩余青蛙数为3，您的等级为：聪明";
+      
+    }
+    else if(n == 2)
+    {
+      fade.style.display = "block";
+      Go.style.display = "block";
+      result.innerHTML = "剩余青蛙数为2，您的等级为：尖子";
+      
+    }
+
+    else if(n == 1)
+    {
+      fade.style.display = "block";
+      Go.style.display = "block";
+      result.innerHTML = "剩余青蛙数为1，您的等级为：大师";
+      
+    }
+    }
+  
+  
+
+     
+ 
+  
+  }
+
+      
+      </script>
+
+       <style type="text/css">
+        .Map {
+         
+            display: flex;
+            justify-content: center;
+            margin-top: 100px;
+            -webkit-transform: translateZ(25px);
+            transform: rotateX(5.2deg) rotateY(0.3deg);
+            opacity: 0.9;
+          }
+
+      canvas{
+      border:1px solid #000;
+      
+      }
+  
+   
+    
+    #init{
+      margin-top: 20px;
+      margin-left:712px;
+    }
+    #sel
+    {
+      margin-top: 20px;
+      display: none;
+       margin-left:620px;
+    }
+
+    .box{
+        display: none;
+        position: absolute;
+        top:20%;
+        left:36%;
+        width:26%;
+        height:31%;
+        padding:10px;
+        background-color: white;
+        opacity: 0.8;
+        z-index: 1002;
+        border:5px solid black;
+        overflow:auto;
+    }
+    .box1{
+        display: none;
+        position: absolute;
+        top:20%;
+        left:65%;
+        width:26%;
+        height:31%;
+        padding:10px;
+        background-color: white;
+        opacity: 0.8;
+        z-index: 1002;
+        border:5px solid black;
+        overflow:auto;
+    }
+
+    .shadow{
+        display:none;
+        position:absolute;
+        top:0%;
+        left:0%;
+        width:100%;
+        height:270%;
+        background-color: black;
+        z-index: 1000;
+        opacity:.40;
+        -moz-opacity:0.4;
+        filter:alpha(opacity = 44);
+    }
+
+    .close{
+      cursor: pointer;
+    }
+  
+    .button{
+      background-color:white;
+      border:black solid;
+      color:black;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #firstview{
+        display:block;
+        position:absolute;
+        top:0%;
+        left:0%;
+        width:100%;
+        height:100%;
+        background-color:mintcream;
+        z-index: 2;
+        background-image: url("02.jpg");
+   
+    }
+    #text{
+      width:300px;
+      height: 420px;
+      margin-top: 100px;
+      margin-left:620px;
+     background-color:#CCEEFF;
+      border:white solid 1px;
+      z-index: 50;
+      border: black solid 1PX;
+      opacity: 0.8;
+      border-radius:8px;
+    }
+    .massage{
+      margin-top: 50px;
+      margin-left:30px;
+      margin-right:30px;
+      font-weight:bold;
+      text-align: center;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: large; 
+      z-index: 51;
+      color:black;
+    }
+    
+    #entergame{
+      margin-left: 100px;
+      margin-top: 30px;
+    }
+    #rule{
+      position:absolute;
+      top:20%;
+      left:28%;
+
+    }
+    body{
+      background-image: url("0.jpg"),url("01.jpg");
+      background-position: left,right;
+      background-size:auto,35%;
+      background-repeat: no-repeat;
+    }
+   
+        </style>
+
+    </body>
+    
+</html>

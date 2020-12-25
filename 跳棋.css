@@ -1,0 +1,25 @@
+table{
+    border: 1px solid #000;
+    text-align: center;
+}
+
+td {
+    width: 50px;
+    height: 50px;
+  }
+
+  
+
+  .td01 {
+    background: #000;
+  }
+  .td03 {
+    background-image: url(normal.gif),url(bg.jpg);
+    background: position 0% 0%,0% 0%;
+    background-repeat: no-repeat;
+  }
+  .td02{
+    background-image: url(bg.jpg);
+    background-repeat: no-repeat;
+    
+  }
